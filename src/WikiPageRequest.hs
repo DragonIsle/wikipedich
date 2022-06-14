@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module WikiPageRequest (WikiPageInfo, searchPages, extract, url) where
+module WikiPageRequest (WikiPageInfo (..), searchPages, url) where
 
 import Data.Aeson.Types
 import GHC.Generics (Generic)
@@ -10,6 +10,7 @@ import Control.Monad
 import Network.HTTP.Simple
 import qualified Data.ByteString.Char8 as S8
 import Data.List (intercalate)
+import BotState (Locale)
 
 
 data WikiPageInfo = WikiPageInfo
@@ -19,8 +20,9 @@ data WikiPageInfo = WikiPageInfo
   }
   deriving (Show, Generic)
   
-url :: String -> WikiPageInfo -> String
-url lang pageInfo = "https://" ++ lang ++ ".wikipedia.org/wiki" ++ "?curid=" ++ show (pageid pageInfo)
+-- | makes wikipedia page url for locale and pageId
+url :: Locale -> Int -> String
+url locale pageId = "https://" ++ show locale ++ ".wikipedia.org/wiki" ++ "?curid=" ++ show pageId
 
 instance ToJSON WikiPageInfo where
   toJSON (WikiPageInfo t pid ex) = object [(T.pack . show) pid .=
@@ -39,9 +41,10 @@ parsePageResponse resp = traverse (\pid -> parseMaybe (withObject "WikiPageInfo"
   ) (getResponseBody resp))
 
 
-searchPages :: String -> [Int] -> IO [WikiPageInfo]
-searchPages lang pageIds = do
-  emptyPageReq <- parseRequest $ "GET https://" ++ lang ++ ".wikipedia.org/w/api.php"
+-- | search pages in local wiki (identified by locale) for passed pageid list
+searchPages :: Locale -> [Int] -> IO [WikiPageInfo]
+searchPages locale pageIds = do
+  emptyPageReq <- parseRequest $ "GET https://" ++ show locale ++ ".wikipedia.org/w/api.php"
 
   let pageReq = setRequestQueryString [
                       ("action", Just "query"),

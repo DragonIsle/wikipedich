@@ -33,7 +33,6 @@ localeMap =
   ]
   
 data WikiBotState = WikiBotState { 
-  userLocales :: HM.Map Int Locale,
   offset :: Int,
   userCallbackMessages :: HM.Map String (String, [[InlineKeyboardButton]])
 }

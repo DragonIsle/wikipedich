@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module WikiSearchRequest (searchUnits, WikiSearchUnit, pageid) where
+module WikiSearchRequest (searchUnits, WikiSearchUnit(..)) where
 
 import Data.Aeson.Types
 import GHC.Generics (Generic)
@@ -10,6 +10,7 @@ import Network.HTTP.Simple
 import Control.Monad
 import Network.HTTP.Types (queryTextToQuery)
 import Data.Text (pack)
+import BotState (Locale)
   
 data WikiSearchUnit = WikiSearchUnit
   { wordcount :: Int
@@ -24,9 +25,10 @@ parseSearchResponse resp = parseMaybe (withObject "WikiSearchUnit" $
     parseJSON <=< (.: "search") <=< (.: "query")
   ) (getResponseBody resp)
 
-searchUnits :: String -> String -> IO [WikiSearchUnit]
-searchUnits lang str = do
-  emptySearchReq <- parseRequest $ "GET https://" ++ lang ++ ".wikipedia.org/w/api.php"
+-- | Search passed string in the local wikipedia (indentified by locale passed)
+searchUnits :: Locale -> String -> IO [WikiSearchUnit]
+searchUnits locale str = do
+  emptySearchReq <- parseRequest $ "GET https://" ++ show locale ++ ".wikipedia.org/w/api.php"
   let searchReq = setRequestQueryString (queryTextToQuery [
                         ("action", Just "query"),
                         ("format", Just "json"),

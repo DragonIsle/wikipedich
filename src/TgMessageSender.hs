@@ -15,7 +15,7 @@ import Control.Monad (when)
 token :: String
 token = "5333507327:AAHu5pMZ43pLFD7DtLYHFStEP20te67Mx2o"
 
--- | URL for TG API (SHOULD BE MOVED TO CONFIG)
+-- | URL for TG API
 baseUrl :: String
 baseUrl = "https://api.telegram.org/bot" ++ token ++ "/"
 
@@ -38,6 +38,7 @@ getUpdatesWithOffset offset = do
   when (isLeft parseResult) $ print $ "Error while parsing TgUpdate list from response: " ++ fromLeft "" parseResult
   return $ concat parseResult
 
+-- | Edit already sent message (identified by chat_id and msgId) and inline keyboard attached to it
 editMessageWithKeyboard :: Int -> Int -> [[TI.InlineKeyboardButton]] -> String -> IO ()
 editMessageWithKeyboard chat_id msgId keyboard msg = do
   emptyEditMessageReq <- parseRequest $ baseUrl ++ "editMessageText"

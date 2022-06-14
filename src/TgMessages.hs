@@ -9,6 +9,7 @@ import GHC.Generics (Generic)
 import Data.Aeson.Types
 import Network.HTTP.Simple
 import Data.Foldable (toList)
+import Data.Maybe (isJust, maybeToList, fromMaybe)
 
 -- | Telegram Chat
 data TgChat = TgChat { username :: String, chat_id :: Int } deriving (Show, Generic)
@@ -51,7 +52,19 @@ instance FromJSON TgUpdate where
     <*> v .:? "message"
     <*> v .:? "callback_query"
 
+data GroupedTgUpdates = GroupedTgUpdates { textMessagesFromChats :: [TgMessage], buttonPressCallbacks :: [CallbackQuery] }
 
+-- | Extracts tg chat id and message that was sent from TgMessage
+extractChatIdAndText :: TgMessage -> (Int, String)
+extractChatIdAndText msg = (chat_id $ chat msg, fromMaybe "" $ text msg)
+
+-- | Groups different tg updates by their logical type
+groupTgUpdates :: [TgUpdate] -> GroupedTgUpdates
+groupTgUpdates updates = let 
+    messagesWithText = filter (isJust . text) $ (maybeToList . upd_message) =<< updates
+    buttonCallbacks = filter (isJust . cq_data) $ (maybeToList . callback_query) =<< updates
+  in GroupedTgUpdates messagesWithText buttonCallbacks
+  
 -- | Parse response with JSON into a list of updates (TgUpdate) or return parsing error 
 parseUpdatesResponse :: Response Value -> Either String [TgUpdate]
 parseUpdatesResponse resp =
@@ -60,6 +73,7 @@ parseUpdatesResponse resp =
         withArray "TgUpdate" (traverse parseJSON . toList) <=< (.: "result")
     )
     (getResponseBody resp)
-    
+
+-- | Parse response with JSON into a list of updates (TgUpdate) or return parsing error
 parseMessagesResponse :: Response Value -> Either String TgMessage
 parseMessagesResponse resp = parseEither parseJSON (getResponseBody resp)
