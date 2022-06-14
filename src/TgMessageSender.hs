@@ -43,7 +43,7 @@ editMessageWithKeyboard :: Int -> Int -> [[TI.InlineKeyboardButton]] -> String -
 editMessageWithKeyboard chat_id msgId keyboard msg = do
   emptyEditMessageReq <- parseRequest $ baseUrl ++ "editMessageText"
 
-  resp <- httpJSON $ setRequestBodyJSON (
+  _ <- (httpJSON $ setRequestBodyJSON (
       object [ 
         ("chat_id", toJSON chat_id),
         ("message_id", toJSON msgId),
@@ -51,9 +51,9 @@ editMessageWithKeyboard chat_id msgId keyboard msg = do
         ("reply_markup", object [("inline_keyboard", toJSON keyboard)]) 
       ]
     ) $ setRequestHeader "Content-Type" ["application/json"]
-      $ setRequestSecure True emptyEditMessageReq
-
-  print $ "Telegram editMessageText query response: " ++ show (getResponseBody resp :: Value)
+      $ setRequestSecure True emptyEditMessageReq) :: IO (Response Value)
+  return ()
+--  print $ "Telegram editMessageText query response: " ++ show (getResponseBody resp :: Value)
 
 
 -- | Send text message to given chat (by it's Int id) with additional body params provided (list of Pairs)
@@ -61,12 +61,12 @@ sendMessageWithParams :: [Pair] -> Int -> String -> IO ()
 sendMessageWithParams params chatId msg = do
   emptySendMessageReq <- parseRequest $ baseUrl ++ "sendMessage"
 
-  sendMessageResp <- httpJSON $ setRequestBodyJSON (
+  _ <- (httpJSON $ setRequestBodyJSON (
       object $ [ ("chat_id", toJSON chatId), ("text", toJSON msg) ] ++ params
     ) $ setRequestHeader "Content-Type" ["application/json"]
-      $ setRequestSecure True emptySendMessageReq
-
-  print $ "Telegram sendMessage query response: " ++ show (getResponseBody sendMessageResp :: Value)
+      $ setRequestSecure True emptySendMessageReq) :: IO (Response Value)
+  return ()
+--  print $ "Telegram sendMessage query response: " ++ show (getResponseBody sendMessageResp :: Value)
 
 -- | Send simple text message
 sendSimpleMessage :: Int -> String -> IO ()

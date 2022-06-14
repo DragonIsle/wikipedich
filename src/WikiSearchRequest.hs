@@ -11,7 +11,7 @@ import Control.Monad
 import Network.HTTP.Types (queryTextToQuery)
 import Data.Text (pack)
 import BotState (Locale)
-  
+
 data WikiSearchUnit = WikiSearchUnit
   { wordcount :: Int
   , size :: Int
@@ -38,5 +38,5 @@ searchUnits locale str = do
                       ])
                       $ setRequestSecure True emptySearchReq
   searchResp <- httpJSON searchReq
-  print $ parseSearchResponse searchResp
+--  print $ parseSearchResponse searchResp
   return $ concat $ parseSearchResponse searchResp
