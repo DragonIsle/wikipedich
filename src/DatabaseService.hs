@@ -23,8 +23,6 @@ insertCallbackMessage cq_data message maybeKeyboardId = withConn "wikibot.db" $ 
     "INSERT INTO callback_messages \
      \ (cq_data, message, inline_keyboard_id) VALUES (?, ?, ?)" 
     (cq_data, message, maybeKeyboardId)
-  print "callback_message added"
-
 
 keyboardToButtonRows :: String -> [[InlineKeyboardButton]] -> [(String, Int, Int, String, Maybe String, Maybe String)]
 keyboardToButtonRows keyboardId keyboard = do
@@ -39,8 +37,6 @@ insertKeyboardButtons keyboardId keyboard = withConn "wikibot.db" $ \conn -> do
      \(keyboard_id, row_order, button_order, text, url, callback_data) \
      \ VALUES (?, ?, ?, ?, ?, ?)"
     $ keyboardToButtonRows keyboardId keyboard
-  print "keyboard buttons added"
-
 
 saveCallbacks :: HM.Map String (String, [[InlineKeyboardButton]]) -> IO ()
 saveCallbacks cmap = traverse_ (\(cq_data, (message, keyboard)) -> do 
