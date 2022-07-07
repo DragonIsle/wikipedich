@@ -10,7 +10,7 @@ import Control.Monad
 import Network.HTTP.Simple
 import qualified Data.ByteString.Char8 as S8
 import Data.List (intercalate)
-import BotState (Locale)
+import Locales (Locale)
 
 
 data WikiPageInfo = WikiPageInfo

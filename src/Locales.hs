@@ -1,11 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module BotState where
+module Locales where
 
 import Data.HashMap as HM (Map, fromList)
 import Data.Hashable
 import GHC.Generics (Generic)
-import TgInlineKeyboard (InlineKeyboardButton)
 
 data Locale = UK | EN | RU deriving (Enum, Eq, Ord, Generic)
 
@@ -31,9 +30,4 @@ localeMap =
     (RU, StandardMessages "Ничего не найдено" "Посмотреть в Википедии"),
     (EN, defaultLocaleMessages)
   ]
-  
-data WikiBotState = WikiBotState { 
-  offset :: Int,
-  userCallbackMessages :: HM.Map String (String, [[InlineKeyboardButton]])
-}
 

@@ -9,10 +9,11 @@ import Data.Maybe (fromMaybe)
 import qualified TgMessages as TM
 import qualified TgInlineKeyboard as TI
 import Control.Monad.State
-import BotState
+import Locales
 import qualified Data.HashMap as HM
 import Data.UUID.V4 (nextRandom)
 import TgMessages (groupTgUpdates, textMessagesFromChats, buttonPressCallbacks, extractChatIdAndText)
+import DatabaseService
 
 makeInlineKeyboard :: String -> [String] -> String -> [[TI.InlineKeyboardButton]]
 makeInlineKeyboard seeInWikiText uuids url =
@@ -46,12 +47,13 @@ searchInWikiAndSendResult locale chatId text = do
 
 -- | Main function that recursively fetch telegram updates,
 -- | do required actions for each update type and update state with new info
-botState :: StateT WikiBotState IO ()
+botState :: StateT Int IO ()
 botState = do
-  currentOffset <- gets offset
+  currentOffset <- get
   botUpdates <- lift $ getUpdatesWithOffset currentOffset
+  lift . print $ botUpdates
   let groupedUpdates = groupTgUpdates botUpdates
-  callbackMsgs <- gets userCallbackMessages
+  callbackMsgs <- lift selectCallbackByCqData
   _ <- lift $ traverse (\callback ->
       let maybe_cq_message = TM.cq_message callback
           chatId = maybe 0 (TM.chat_id . TM.chat) maybe_cq_message
@@ -63,9 +65,8 @@ botState = do
   let chatIdsWithMessageTexts = extractChatIdAndText <$> textMessagesFromChats groupedUpdates
     -- todo: change UK to user locale
   pagesByChatId <- lift $ traverse (uncurry $ searchInWikiAndSendResult UK) chatIdsWithMessageTexts
-  withStateT (\oldS -> oldS {
-      userCallbackMessages = foldl HM.union (userCallbackMessages oldS) pagesByChatId,
-      offset = foldl max 0 (TM.update_id <$> botUpdates) + 1
-    }) botState
+  lift $ saveCallbacks $ foldl HM.union HM.empty pagesByChatId
+  put $ foldl max 0 (TM.update_id <$> botUpdates) + 1
+  withStateT (\_ -> foldl max 0 (TM.update_id <$> botUpdates) + 1) botState
 
 

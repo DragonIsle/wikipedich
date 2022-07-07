@@ -33,6 +33,9 @@ dependencies:
 - mtl
 - uuid
 - hashable
+- sqlite-simple
+- time
+
 library:
   source-dirs: src
 

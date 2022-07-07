@@ -10,7 +10,7 @@ import Network.HTTP.Simple
 import Control.Monad
 import Network.HTTP.Types (queryTextToQuery)
 import Data.Text (pack)
-import BotState (Locale)
+import Locales (Locale)
 
 data WikiSearchUnit = WikiSearchUnit
   { wordcount :: Int

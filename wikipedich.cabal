@@ -25,7 +25,8 @@ source-repository head
 
 library
   exposed-modules:
-      BotState
+      DatabaseService
+      Locales
       TelegramBot
       TgInlineKeyboard
       TgMessages
@@ -46,7 +47,9 @@ library
     , http-conduit
     , http-types
     , mtl
+    , sqlite-simple
     , text
+    , time
     , uuid
     , vector
     , yaml
@@ -69,7 +72,9 @@ executable wikipedich-exe
     , http-conduit
     , http-types
     , mtl
+    , sqlite-simple
     , text
+    , time
     , uuid
     , vector
     , wikipedich
@@ -94,7 +99,9 @@ test-suite wikipedich-test
     , http-conduit
     , http-types
     , mtl
+    , sqlite-simple
     , text
+    , time
     , uuid
     , vector
     , wikipedich
