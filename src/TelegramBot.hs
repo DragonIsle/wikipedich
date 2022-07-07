@@ -51,7 +51,6 @@ botState :: StateT Int IO ()
 botState = do
   currentOffset <- get
   botUpdates <- lift $ getUpdatesWithOffset currentOffset
-  lift . print $ botUpdates
   let groupedUpdates = groupTgUpdates botUpdates
   callbackMsgs <- lift selectCallbackByCqData
   _ <- lift $ traverse (\callback ->
